@@ -8,6 +8,7 @@ import '../../core/providers/gst_calculator_provider.dart';
 import '../../core/providers/invoice_provider.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../core/utils/currency_utils.dart';
+import '../../core/utils/legal_dialog.dart';
 
 class GstCalculatorScreen extends StatefulWidget {
   const GstCalculatorScreen({super.key});
@@ -73,6 +74,10 @@ class _GstCalculatorScreenState extends State<GstCalculatorScreen>
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline_rounded),
+            onPressed: () => showAppLegalDialog(context),
+          ),
           IconButton(
             icon: Icon(
               context.watch<ThemeProvider>().isDarkMode

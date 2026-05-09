@@ -8,6 +8,7 @@ import '../../core/models/invoice.dart';
 import '../../core/providers/invoice_provider.dart';
 import '../../core/utils/currency_utils.dart';
 import '../../core/services/pdf_service.dart';
+import '../../core/utils/legal_dialog.dart';
 
 class InvoiceHistoryScreen extends StatefulWidget {
   const InvoiceHistoryScreen({super.key});
@@ -39,6 +40,12 @@ class _InvoiceHistoryScreenState extends State<InvoiceHistoryScreen> {
           const SizedBox(width: 10),
           Text('Invoice History', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 20)),
         ]),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline_rounded),
+            onPressed: () => showAppLegalDialog(context),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () => provider.loadInvoices(),

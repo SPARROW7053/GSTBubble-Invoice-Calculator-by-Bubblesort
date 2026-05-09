@@ -7,6 +7,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/models/client.dart';
 import '../../core/providers/business_provider.dart';
 import '../../core/providers/theme_provider.dart';
+import '../../core/utils/legal_dialog.dart';
 
 class BusinessProfileScreen extends StatefulWidget {
   const BusinessProfileScreen({super.key});
@@ -56,6 +57,10 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           Text('My Business', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 20)),
         ]),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline_rounded),
+            onPressed: () => showAppLegalDialog(context),
+          ),
           IconButton(
             icon: Icon(context.watch<ThemeProvider>().isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded),
             onPressed: () => context.read<ThemeProvider>().toggleTheme(),

@@ -10,6 +10,7 @@ import '../../core/providers/business_provider.dart';
 import '../../core/utils/currency_utils.dart';
 import '../../core/services/pdf_service.dart';
 import '../../core/data/hsn_codes.dart';
+import '../../core/utils/legal_dialog.dart';
 
 class CreateInvoiceScreen extends StatefulWidget {
   const CreateInvoiceScreen({super.key});
@@ -69,6 +70,10 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
           Text('Create Invoice', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 20)),
         ]),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline_rounded),
+            onPressed: () => showAppLegalDialog(context),
+          ),
           if (invoice != null)
             TextButton.icon(
               onPressed: () => _resetInvoice(invoiceProvider),
