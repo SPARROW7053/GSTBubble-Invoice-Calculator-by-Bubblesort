@@ -255,10 +255,9 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
             controller: TextEditingController(text: item.unitPrice > 0 ? item.unitPrice.toString() : '')..selection = TextSelection.collapsed(offset: (item.unitPrice > 0 ? item.unitPrice.toString() : '').length),
             onChanged: (v) => provider.updateInvoiceItem(index, item.copyWith(unitPrice: double.tryParse(v) ?? 0)))),
           const SizedBox(width: 8),
-          SizedBox(width: 80, child: DropdownButtonFormField<double>(
-            initialValue: item.gstRate, decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10)),
-            items: [0,5,12,18,28].map((r) => DropdownMenuItem(value: r.toDouble(), child: Text('$r%'))).toList(),
-            onChanged: (v) { if (v != null) provider.updateInvoiceItem(index, item.copyWith(gstRate: v)); })),
+          SizedBox(width: 80, child: TextField(decoration: const InputDecoration(hintText: 'GST %', contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10)), keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            controller: TextEditingController(text: item.gstRate.toString())..selection = TextSelection.collapsed(offset: item.gstRate.toString().length),
+            onChanged: (v) => provider.updateInvoiceItem(index, item.copyWith(gstRate: double.tryParse(v) ?? 0)))),
         ]),
         const SizedBox(height: 8),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

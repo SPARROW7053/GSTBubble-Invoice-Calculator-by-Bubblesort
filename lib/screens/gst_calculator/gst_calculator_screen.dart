@@ -397,6 +397,34 @@ class _GstCalculatorScreenState extends State<GstCalculatorScreen>
               );
             }).toList(),
           ),
+          const SizedBox(height: 16),
+          TextField(
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Or enter custom rate (e.g. 1.5)',
+              prefixIcon: const Icon(Icons.edit_outlined, size: 20),
+              suffixText: '%',
+              filled: true,
+              fillColor: isDark ? AppColors.darkInputBg : AppColors.lightInputBg,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            onChanged: (value) {
+              final rate = double.tryParse(value);
+              if (rate != null) {
+                provider.setGstRate(rate);
+              } else if (value.isEmpty) {
+                provider.setGstRate(0);
+              }
+            },
+          ),
         ],
       ),
     );
