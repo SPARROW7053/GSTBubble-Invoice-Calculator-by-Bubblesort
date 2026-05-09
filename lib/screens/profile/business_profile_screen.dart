@@ -246,3 +246,40 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
           } else {
             provider.addClient(Client(name: nameCtrl.text, gstin: gstinCtrl.text, address: addressCtrl.text, phone: phoneCtrl.text, email: emailCtrl.text));
           }
+          Navigator.pop(ctx);
+        }, child: Text(isEditing ? 'Update' : 'Add')),
+      ],
+    ));
+  }
+
+  Widget _buildLegalSection(bool isDark) {
+    return _sectionCard(isDark, 'Legal', Icons.gavel_rounded, [
+      ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.privacy_tip_outlined),
+        title: Text('Privacy Policy', style: GoogleFonts.inter(fontSize: 14)),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _showLegalDialog('Privacy Policy', 'This application does not collect, transmit, or store any personal data externally. All invoices, clients, and business details are stored locally on your device. \n\nWe do not use tracking or analytics software that identifies you. If you choose to upload an image logo, it remains strictly on your device.\n\nFor more detailed terms or questions, please contact the developer.'),
+      ),
+      Divider(height: 1, color: isDark ? AppColors.darkInputBg : AppColors.lightInputBg),
+      ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.description_outlined),
+        title: Text('Terms and Conditions', style: GoogleFonts.inter(fontSize: 14)),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _showLegalDialog('Terms and Conditions', 'By using GSTBubble — Invoice & Calculator, you agree that the app is provided "as is" without any guarantees. \n\nThe calculations provided by the GST Calculator and Invoice Generator should be verified before being used for official tax or legal purposes. The developers are not responsible for any calculation errors or any financial discrepancies resulting from the use of this app.\n\nYou are responsible for ensuring that your invoices comply with your local tax authority\'s rules and regulations.'),
+      ),
+    ]);
+  }
+
+  void _showLegalDialog(String title, String content) {
+    showDialog(context: context, builder: (ctx) => AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+      content: SingleChildScrollView(child: Text(content, style: GoogleFonts.inter(fontSize: 14))),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
+      ],
+    ));
+  }
+}
