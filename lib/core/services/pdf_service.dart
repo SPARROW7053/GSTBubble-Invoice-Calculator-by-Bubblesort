@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -24,6 +26,24 @@ class PdfService {
     const borderColor = PdfColor.fromInt(0xFFE5E7EB);
     const textSecondary = PdfColor.fromInt(0xFF6B7280);
 
+    // Load Logo if available
+    pw.MemoryImage? logoImage;
+    if (invoice.logoPath != null && invoice.logoPath!.isNotEmpty) {
+      try {
+        if (invoice.logoPath!.startsWith('assets/')) {
+          final ByteData data = await rootBundle.load(invoice.logoPath!);
+          logoImage = pw.MemoryImage(data.buffer.asUint8List());
+        } else {
+          final file = File(invoice.logoPath!);
+          if (await file.exists()) {
+            logoImage = pw.MemoryImage(await file.readAsBytes());
+          }
+        }
+      } catch (e) {
+        debugPrint('Error loading PDF logo: $e');
+      }
+    }
+
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
@@ -40,17 +60,32 @@ class PdfService {
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Expanded(
-                  child: pw.Column(
+                  child: pw.Row(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      pw.Text(
-                        invoice.senderName.isNotEmpty ? invoice.senderName : 'Your Business',
-                        style: pw.TextStyle(
-                          font: headingFont,
-                          fontSize: 20,
-                          color: PdfColors.white,
+                      if (logoImage != null)
+                        pw.Container(
+                          margin: const pw.EdgeInsets.only(right: 12),
+                          width: 48,
+                          height: 48,
+                          child: pw.ClipRRect(
+                            horizontalRadius: 6,
+                            verticalRadius: 6,
+                            child: pw.Image(logoImage, fit: pw.BoxFit.cover)
+                          ),
                         ),
-                      ),
+                      pw.Expanded(
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text(
+                              invoice.senderName.isNotEmpty ? invoice.senderName : 'Your Business',
+                              style: pw.TextStyle(
+                                font: headingFont,
+                                fontSize: 20,
+                                color: PdfColors.white,
+                              ),
+                            ),
                       pw.SizedBox(height: 4),
                       if (invoice.senderGstin.isNotEmpty)
                         pw.Text(
@@ -62,6 +97,9 @@ class PdfService {
                           invoice.senderAddress,
                           style: pw.TextStyle(font: regularFont, fontSize: 9, color: const PdfColor.fromInt(0xFF9E9E9E)),
                         ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -28,7 +28,7 @@ String formatIndianCurrency(double amount, {bool includeSymbol = true}) {
   
   final result = '$formatted.$decimalPart';
   final prefix = isNegative ? '-' : '';
-  return includeSymbol ? '$prefix₹$result' : '$prefix$result';
+  return includeSymbol ? '${prefix}Rs. $result' : '$prefix$result';
 }
 
 /// Converts a number to words in Indian style

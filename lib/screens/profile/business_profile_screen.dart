@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/models/client.dart';
@@ -167,9 +170,12 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.accentCoral.withValues(alpha: 0.3), width: 2, strokeAlign: BorderSide.strokeAlignOutside),
             ),
-            child: profile.logoPath != null
+            child: profile.logoPath != null && profile.logoPath!.isNotEmpty
                 ? ClipRRect(borderRadius: BorderRadius.circular(16),
-                    child: Image.asset(profile.logoPath!, fit: BoxFit.cover, errorBuilder: (_, e, st) => const Icon(Icons.business, size: 36, color: AppColors.accentCoral)))
+                    child: profile.logoPath!.startsWith('assets/') 
+                      ? Image.asset(profile.logoPath!, fit: BoxFit.cover, errorBuilder: (_, e, st) => const Icon(Icons.business, size: 36, color: AppColors.accentCoral))
+                      : Image.file(File(profile.logoPath!), fit: BoxFit.cover, errorBuilder: (_, e, st) => const Icon(Icons.broken_image, size: 36, color: AppColors.accentCoral))
+                  )
                 : const Icon(Icons.add_a_photo_rounded, size: 28, color: AppColors.accentCoral),
           ),
         ),
@@ -185,8 +191,49 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
 
   Future<void> _pickLogo(BusinessProvider provider) async {
     final picker = ImagePicker();
-    final img = await picker.pickImage(source: ImageSource.gallery, maxWidth: 512, maxHeight: 512);
-    if (img != null) await provider.updateProfileField('logoPath', img.path);
+    final img = await picker.pickImage(source: ImageSource.gallery, maxWidth: 1024, maxHeight: 1024);
+    if (img != null) {
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: img.path,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Logo',
+            toolbarColor: AppColors.primaryNavy,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+            aspectRatioPresets: [
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.ratio3x2,
+              CropAspectRatioPreset.original,
+              CropAspectRatioPreset.ratio4x3,
+              CropAspectRatioPreset.ratio16x9
+            ],
+          ),
+          IOSUiSettings(
+            title: 'Crop Logo',
+            aspectRatioPresets: [
+              CropAspectRatioPreset.square,
+              CropAspectRatioPreset.ratio3x2,
+              CropAspectRatioPreset.original,
+              CropAspectRatioPreset.ratio4x3,
+              CropAspectRatioPreset.ratio16x9
+            ],
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        try {
+          final dir = await getApplicationDocumentsDirectory();
+          final fileName = 'logo_${DateTime.now().millisecondsSinceEpoch}.png';
+          final savedImage = await File(croppedFile.path).copy('${dir.path}/$fileName');
+          await provider.updateProfileField('logoPath', savedImage.path);
+        } catch (e) {
+          await provider.updateProfileField('logoPath', croppedFile.path);
+        }
+      }
+    }
   }
 
   Widget _buildClientsSection(bool isDark, BusinessProvider provider) {
