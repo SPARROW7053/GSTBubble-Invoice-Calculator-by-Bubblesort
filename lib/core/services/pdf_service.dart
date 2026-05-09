@@ -192,13 +192,35 @@ class PdfService {
                     children: [
                       _pdfSummaryRow('Subtotal', formatIndianCurrency(invoice.subtotal), regularFont, semiBoldFont),
                       pw.SizedBox(height: 4),
-                      // GST breakdown by rate
-                      ...invoice.gstBreakdown.entries.map((entry) =>
-                        pw.Padding(
-                          padding: const pw.EdgeInsets.only(bottom: 4),
-                          child: _pdfSummaryRow('GST @ ${entry.key.toStringAsFixed(0)}%', formatIndianCurrency(entry.value), regularFont, semiBoldFont),
-                        ),
-                      ),
+                      // Detailed GST Breakdown
+                      ...() {
+                        final Map<String, double> detailedBreakdown = {};
+                        for (var item in invoice.items) {
+                          if (item.gstAmount <= 0) continue;
+                          final rateStr = item.gstRate == item.gstRate.truncateToDouble() 
+                              ? item.gstRate.toInt().toString() 
+                              : item.gstRate.toStringAsFixed(1);
+                          final halfRateStr = (item.gstRate / 2) == (item.gstRate / 2).truncateToDouble() 
+                              ? (item.gstRate / 2).toInt().toString() 
+                              : (item.gstRate / 2).toStringAsFixed(1);
+                              
+                          if (item.isInterState) {
+                            String key = 'IGST @ $rateStr%';
+                            detailedBreakdown[key] = (detailedBreakdown[key] ?? 0) + item.igst;
+                          } else {
+                            String cKey = 'CGST @ $halfRateStr%';
+                            detailedBreakdown[cKey] = (detailedBreakdown[cKey] ?? 0) + item.cgst;
+                            String sKey = 'SGST @ $halfRateStr%';
+                            detailedBreakdown[sKey] = (detailedBreakdown[sKey] ?? 0) + item.sgst;
+                          }
+                        }
+                        return detailedBreakdown.entries.map((entry) =>
+                          pw.Padding(
+                            padding: const pw.EdgeInsets.only(bottom: 4),
+                            child: _pdfSummaryRow(entry.key, formatIndianCurrency(entry.value), regularFont, semiBoldFont),
+                          ),
+                        );
+                      }(),
                       pw.Divider(color: borderColor),
                       pw.SizedBox(height: 4),
                       pw.Container(
@@ -341,7 +363,12 @@ class PdfService {
               _tableCell(item.hsnCode.isNotEmpty ? item.hsnCode : '-', regularFont, align: pw.TextAlign.center),
               _tableCell(item.quantity.toStringAsFixed(item.quantity == item.quantity.roundToDouble() ? 0 : 2), regularFont, align: pw.TextAlign.center),
               _tableCell(formatIndianCurrency(item.unitPrice), regularFont, align: pw.TextAlign.right),
-              _tableCell('${item.gstRate.toStringAsFixed(0)}%', regularFont, align: pw.TextAlign.center),
+              _tableCell(
+                item.isInterState 
+                    ? 'IGST\n${item.gstRate == item.gstRate.truncateToDouble() ? item.gstRate.toInt() : item.gstRate.toStringAsFixed(1)}%'
+                    : 'C+S\n${item.gstRate == item.gstRate.truncateToDouble() ? item.gstRate.toInt() : item.gstRate.toStringAsFixed(1)}%', 
+                regularFont, align: pw.TextAlign.center
+              ),
               _tableCell(formatIndianCurrency(item.gstAmount), regularFont, align: pw.TextAlign.right),
               _tableCell(formatIndianCurrency(item.totalAmount), semiBoldFont, align: pw.TextAlign.right),
             ],
@@ -377,10 +404,13 @@ class PdfService {
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 3),
       child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(label, style: pw.TextStyle(font: regular, fontSize: 9, color: const PdfColor.fromInt(0xFF6B7280))),
           pw.SizedBox(width: 6),
-          pw.Text(value, style: pw.TextStyle(font: bold, fontSize: 9)),
+          pw.Expanded(
+            child: pw.Text(value, style: pw.TextStyle(font: bold, fontSize: 9)),
+          ),
         ],
       ),
     );

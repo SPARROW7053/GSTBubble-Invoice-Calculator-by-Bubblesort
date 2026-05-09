@@ -90,7 +90,7 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.all(20),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  _buildSenderCard(isDark, invoice),
+                  _buildSenderCard(isDark),
                   const SizedBox(height: 16),
                   _buildClientCard(isDark, invoiceProvider),
                   const SizedBox(height: 16),
@@ -130,12 +130,14 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
     );
   }
 
-  Widget _buildSenderCard(bool isDark, Invoice invoice) {
+  Widget _buildSenderCard(bool isDark) {
+    final profile = context.watch<BusinessProvider>().profile;
+    
     return _sectionCard(isDark, title: 'From (Your Business)', icon: Icons.business_rounded, children: [
-      if (invoice.senderName.isNotEmpty) ...[
-        Text(invoice.senderName, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15)),
-        if (invoice.senderGstin.isNotEmpty) Text('GSTIN: ${invoice.senderGstin}', style: GoogleFonts.inter(fontSize: 13, color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary)),
-        if (invoice.senderAddress.isNotEmpty) Text(invoice.senderAddress, style: GoogleFonts.inter(fontSize: 13, color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary)),
+      if (profile.businessName.isNotEmpty) ...[
+        Text(profile.businessName, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15)),
+        if (profile.gstin.isNotEmpty) Text('GSTIN: ${profile.gstin}', style: GoogleFonts.inter(fontSize: 13, color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary)),
+        if (profile.address.isNotEmpty) Text(profile.address, style: GoogleFonts.inter(fontSize: 13, color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary)),
       ] else
         Text('Set up your business profile in the Business tab', style: GoogleFonts.inter(fontSize: 13, color: AppColors.accentCoral, fontStyle: FontStyle.italic)),
     ]);
@@ -252,17 +254,26 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
         ]),
         const SizedBox(height: 8),
         Row(children: [
-          Expanded(child: TextField(decoration: const InputDecoration(hintText: 'Qty'), keyboardType: TextInputType.number,
-            controller: TextEditingController(text: item.quantity > 0 ? item.quantity.toString() : '')..selection = TextSelection.collapsed(offset: (item.quantity > 0 ? item.quantity.toString() : '').length),
-            onChanged: (v) => provider.updateInvoiceItem(index, item.copyWith(quantity: double.tryParse(v) ?? 1)))),
+          Expanded(child: TextFormField(
+            key: ValueKey('${item.id}_qty'),
+            initialValue: item.quantity > 0 ? (item.quantity == item.quantity.truncateToDouble() ? item.quantity.toInt().toString() : item.quantity.toString()) : '',
+            decoration: const InputDecoration(hintText: 'Qty'), keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: (v) => provider.updateInvoiceItem(index, item.copyWith(quantity: double.tryParse(v) ?? 0)),
+          )),
           const SizedBox(width: 8),
-          Expanded(child: TextField(decoration: const InputDecoration(hintText: 'Unit Price ₹'), keyboardType: TextInputType.number,
-            controller: TextEditingController(text: item.unitPrice > 0 ? item.unitPrice.toString() : '')..selection = TextSelection.collapsed(offset: (item.unitPrice > 0 ? item.unitPrice.toString() : '').length),
-            onChanged: (v) => provider.updateInvoiceItem(index, item.copyWith(unitPrice: double.tryParse(v) ?? 0)))),
+          Expanded(child: TextFormField(
+            key: ValueKey('${item.id}_price'),
+            initialValue: item.unitPrice > 0 ? (item.unitPrice == item.unitPrice.truncateToDouble() ? item.unitPrice.toInt().toString() : item.unitPrice.toString()) : '',
+            decoration: const InputDecoration(hintText: 'Unit Price ₹'), keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: (v) => provider.updateInvoiceItem(index, item.copyWith(unitPrice: double.tryParse(v) ?? 0)),
+          )),
           const SizedBox(width: 8),
-          SizedBox(width: 80, child: TextField(decoration: const InputDecoration(hintText: 'GST %', contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10)), keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            controller: TextEditingController(text: item.gstRate.toString())..selection = TextSelection.collapsed(offset: item.gstRate.toString().length),
-            onChanged: (v) => provider.updateInvoiceItem(index, item.copyWith(gstRate: double.tryParse(v) ?? 0)))),
+          SizedBox(width: 80, child: TextFormField(
+            key: ValueKey('${item.id}_gst'),
+            initialValue: item.gstRate > 0 ? (item.gstRate == item.gstRate.truncateToDouble() ? item.gstRate.toInt().toString() : item.gstRate.toString()) : '',
+            decoration: const InputDecoration(hintText: 'GST %', contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10)), keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: (v) => provider.updateInvoiceItem(index, item.copyWith(gstRate: double.tryParse(v) ?? 0)),
+          )),
         ]),
         const SizedBox(height: 8),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -337,6 +348,21 @@ class _CreateInvoiceScreenState extends State<CreateInvoiceScreen> {
 
   Future<void> _generateInvoice(Invoice invoice, InvoiceProvider provider) async {
     try {
+      // Sync latest business profile details before generating PDF
+      final profile = context.read<BusinessProvider>().profile;
+      invoice.senderName = profile.businessName;
+      invoice.senderGstin = profile.gstin;
+      invoice.senderAddress = profile.address;
+      invoice.senderPhone = profile.phone;
+      invoice.senderEmail = profile.email;
+      invoice.logoPath = profile.logoPath;
+      
+      // We don't overwrite paymentTerms if the user modified them specifically for this invoice,
+      // but if they are empty, we can fetch from profile.
+      if (invoice.paymentTerms.isEmpty) {
+        invoice.paymentTerms = profile.paymentTerms;
+      }
+
       await provider.saveInvoice();
       final pdfBytes = await PdfService.generateInvoicePdf(invoice);
       if (!mounted) return;

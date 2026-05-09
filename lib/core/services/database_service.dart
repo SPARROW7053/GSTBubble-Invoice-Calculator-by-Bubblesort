@@ -161,11 +161,13 @@ class DatabaseService {
   // ========== Invoice Counter ==========
 
   int getNextInvoiceNumber() {
-    return settingsBox.get('nextInvoiceNumber', defaultValue: 1) as int;
+    final profile = getBusinessProfile();
+    return profile.nextInvoiceNumber;
   }
 
   Future<void> incrementInvoiceNumber() async {
-    final current = getNextInvoiceNumber();
-    await settingsBox.put('nextInvoiceNumber', current + 1);
+    final profile = getBusinessProfile();
+    profile.nextInvoiceNumber += 1;
+    await saveBusinessProfile(profile);
   }
 }
