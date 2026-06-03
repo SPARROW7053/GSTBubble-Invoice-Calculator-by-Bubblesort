@@ -51,7 +51,7 @@ class GstInvoiceProApp extends StatelessWidget {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
-          title: 'GSTBubble — Invoice & Calculator by Bubblesort',
+          title: 'GSTBubble',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,

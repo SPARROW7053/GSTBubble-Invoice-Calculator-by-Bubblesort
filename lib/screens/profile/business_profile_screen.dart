@@ -319,7 +319,7 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
         leading: const Icon(Icons.description_outlined),
         title: Text('Terms and Conditions', style: GoogleFonts.inter(fontSize: 14)),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => _showLegalDialog('Terms and Conditions', 'By using GSTBubble — Invoice & Calculator, you agree that the app is provided "as is" without any guarantees. \n\nThe calculations provided by the GST Calculator and Invoice Generator should be verified before being used for official tax or legal purposes. The developers are not responsible for any calculation errors or any financial discrepancies resulting from the use of this app.\n\nYou are responsible for ensuring that your invoices comply with your local tax authority\'s rules and regulations.'),
+        onTap: () => _showLegalDialog('Terms and Conditions', 'By using GSTBubble, you agree that the app is provided "as is" without any guarantees. \n\nThe calculations provided by the GST Calculator and Invoice Generator should be verified before being used for official tax or legal purposes. The developers are not responsible for any calculation errors or any financial discrepancies resulting from the use of this app.\n\nYou are responsible for ensuring that your invoices comply with your local tax authority\'s rules and regulations.'),
       ),
     ]);
   }

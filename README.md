@@ -1,4 +1,4 @@
-# GSTBubble — Invoice & Calculator by Bubblesort
+# GSTBubble
 
 A new Flutter project.
 

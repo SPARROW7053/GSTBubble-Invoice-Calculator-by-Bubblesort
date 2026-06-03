@@ -1,9 +1,9 @@
-# Privacy Policy for GSTBubble — Invoice & Calculator
+# Privacy Policy for GSTBubble
 
 **Effective Date:** [Date]
 
 ## 1. Introduction
-Welcome to **GSTBubble — Invoice & Calculator** ("the App"). We respect your privacy and are committed to protecting it. This Privacy Policy explains our practices regarding the collection, use, and disclosure of information when you use our App.
+Welcome to **GSTBubble** ("the App"). We respect your privacy and are committed to protecting it. This Privacy Policy explains our practices regarding the collection, use, and disclosure of information when you use our App.
 
 ## 2. Information Collection and Use
 The App is designed to function entirely offline. 

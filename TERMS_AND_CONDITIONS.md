@@ -1,9 +1,9 @@
-# Terms and Conditions for GSTBubble — Invoice & Calculator
+# Terms and Conditions for GSTBubble
 
 **Effective Date:** [Date]
 
 ## 1. Acceptance of Terms
-By downloading or using **GSTBubble — Invoice & Calculator** ("the App"), these terms will automatically apply to you. You should make sure that you read them carefully before using the App.
+By downloading or using **GSTBubble** ("the App"), these terms will automatically apply to you. You should make sure that you read them carefully before using the App.
 
 ## 2. Use of the App
 * The App is provided for the purpose of helping Indian small businesses generate invoices and calculate GST.

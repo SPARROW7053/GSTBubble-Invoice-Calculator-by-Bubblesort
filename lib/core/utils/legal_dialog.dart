@@ -28,7 +28,7 @@ void showAppLegalDialog(BuildContext context) {
             Text('Terms and Conditions', style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16)),
             const SizedBox(height: 8),
             Text(
-              'By using GSTBubble — Invoice & Calculator, you agree that the app is provided "as is" without any guarantees.\n\nThe calculations provided by the GST Calculator and Invoice Generator should be verified before being used for official tax or legal purposes. The developers are not responsible for any calculation errors or any financial discrepancies resulting from the use of this app.\n\nYou are responsible for ensuring that your invoices comply with your local tax authority\'s rules and regulations.',
+              'By using GSTBubble, you agree that the app is provided "as is" without any guarantees.\n\nThe calculations provided by the GST Calculator and Invoice Generator should be verified before being used for official tax or legal purposes. The developers are not responsible for any calculation errors or any financial discrepancies resulting from the use of this app.\n\nYou are responsible for ensuring that your invoices comply with your local tax authority\'s rules and regulations.',
               style: GoogleFonts.inter(fontSize: 14),
             ),
           ],
